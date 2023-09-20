@@ -2,10 +2,9 @@ import json
 from subprocess import PIPE, Popen
 
 from powerline.segments import Segment, with_docstring
-from powerline.theme import requires_filesystem_watcher, requires_segment_info
+from powerline.theme import requires_segment_info
 
 
-@requires_filesystem_watcher
 @requires_segment_info
 class TailscaleSegment(Segment):
     def __call__(self, pl, segment_info, show_account: bool = True, **kwargs):
