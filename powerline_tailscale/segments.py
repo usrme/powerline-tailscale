@@ -6,6 +6,9 @@ from powerline.segments import Segment, with_docstring
 from powerline.theme import requires_segment_info
 
 SEGMENT_PREFIX = "(ts)"
+SOCKET_PATH = "/var/run/tailscale/tailscaled.sock"
+BASE_LOCAL_API_ENDPOINT = "http://local-tailscaled.sock/localapi/v0"
+CURL_COMMAND = ["curl", "--unix-socket", SOCKET_PATH]
 
 
 @requires_segment_info
@@ -28,7 +31,8 @@ class TailscaleSegment(Segment):
             return
 
         if show_exit_node_status or show_exit_node:
-            self.exit_node_ips = self._get_exit_node_ips()
+            ts_status = json.loads(query_api("status"))
+            self.exit_node_ips = get_exit_node_ips(ts_status)
 
         return self.build_segments(show_profile_name, show_exit_node_status, show_exit_node)
 
@@ -36,11 +40,9 @@ class TailscaleSegment(Segment):
         segments = []
 
         if show_profile_name:
-            base = self.get_base_command()
-            profile = self.execute(base + ["http://local-tailscaled.sock/localapi/v0/prefs"])
-            d = json.loads(profile)
-            profile_name = d.get("ProfileName", None)
-            config = d.get("Config", None)
+            ts_prefs = json.loads(query_api("prefs"))
+            profile_name = ts_prefs.get("ProfileName", None)
+            config = ts_prefs.get("Config", None)
 
             if profile_name is None and config is not None:
                 contents = "default"
@@ -61,7 +63,7 @@ class TailscaleSegment(Segment):
             highlight_groups = ["tailscale_exitnode"]
             contents = "exit node (n)"
 
-            if self.exit_node_ips is not None:
+            if self.exit_node_ips:
                 contents = "exit node (y)"
 
             if not show_profile_name and show_exit_node_status:
@@ -81,7 +83,7 @@ class TailscaleSegment(Segment):
             highlight_groups = ["tailscale_exitnode"]
             contents = "exit node (n)"
 
-            if self.exit_node_ips is not None:
+            if self.exit_node_ips:
                 # If both an IPv4 and IPv6 address exist, it should get the first
                 # which is usually IPv4
                 contents = self.exit_node_ips[0]
@@ -100,29 +102,28 @@ class TailscaleSegment(Segment):
 
         return segments
 
-    def execute(self, command):
-        proc = Popen(command, stdout=PIPE, stderr=PIPE)
-        out, _ = proc.communicate()
-        return out.decode("utf-8")
 
-    def get_base_command(self):
-        return ["curl", "--unix-socket", "/var/run/tailscale/tailscaled.sock"]
+def query_api(endpoint: str) -> str:
+    endpoint = f"{BASE_LOCAL_API_ENDPOINT}/{endpoint}"
+    cmd = CURL_COMMAND.copy()
+    cmd.append(endpoint)
+    return _execute(cmd)
 
-    # TODO: This might not need to be an instance method, but rather just a function
-    # that reads a dictionary '{"ExitNodeStatus": {"TailscaleIPs": ["abc", "xyz"]}}'
-    def _get_exit_node_ips(self) -> Union[list[str], None]:
-        base = self.get_base_command()
-        status = self.execute(base + ["http://local-tailscaled.sock/localapi/v0/status"])
-        d = json.loads(status)
-        exit_node_status = d.get("ExitNodeStatus", None)
-        if exit_node_status is None:
-            return None
 
-        exit_node_ips = exit_node_status.get("TailscaleIPs", None)
-        if exit_node_ips is None:
-            return None
+def _execute(command: list[str]):
+    proc = Popen(command, stdout=PIPE, stderr=PIPE)
+    out, _ = proc.communicate()
+    return out.decode("utf-8")
 
-        return exit_node_ips
+
+def get_exit_node_ips(ts_status: dict) -> list[str]:
+    exit_node_status = ts_status.get("ExitNodeStatus", None)
+    if exit_node_status is None:
+        return []
+    exit_node_ips = exit_node_status.get("TailscaleIPs", None)
+    if exit_node_ips is None:
+        return []
+    return exit_node_ips
 
 
 tailscale = with_docstring(TailscaleSegment(), """Return the status of Tailscale.""")
