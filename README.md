@@ -50,7 +50,7 @@ After that, add the segment's configuration by modifying the relevant Powerline 
   "function": "powerline_tailscale.tailscale",
     "args": {
       "show_profile_name": true,
-      "show_exit_node_status": true,
+      "show_exit_node_status": false,
       "show_exit_node": true
   }
 }
