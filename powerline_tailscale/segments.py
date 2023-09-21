@@ -52,6 +52,8 @@ class TailscaleSegment(Segment):
                     "divider_highlight_group": "tailscale:divider",
                 }
             )
+            if "logged out" in contents:
+                return segments
 
         if show_exit_node_status:
             contents = "exit node (n)"
