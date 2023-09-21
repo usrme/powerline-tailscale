@@ -2,6 +2,8 @@
 
 A Powerline segment for showing the status of Tailscale.
 
+![Powerline Tailscale - animated GIF demo](examples/demo.gif)
+
 Since Tailscale doesn't (seemingly) have a configuration file where it reads and stores state, this segment implementation relies on the `tailscaled` API server. I haven't found any official documentation regarding it, but its capabilities are available [here](https://github.com/tailscale/tailscale/blob/c08cf2a9c6209e4fdef896921af66bbe737b8a24/ipn/localapi/localapi.go). There exists a Python library to interact with this API in limited form called ['tailscale-localapi'](https://github.com/apognu/tailscale-localapi), though I decided against using it because I didn't want to introduce any Python-specific dependencies; this is something I may reconsider in the future keeping in mind that the current implementation relies on `curl` instead.
 
 ## Requirements
@@ -28,7 +30,7 @@ pip install powerline-tailscale
 
 ## Configuration
 
-Only three highlight groups are necessary to be defined in order for `powerline-tailscale` to work. These can be set up in `~/.config/powerline/colorschemes/default.json`:
+Only three highlight groups are necessary to be defined in order for `powerline-tailscale` to work. These can be set up in `~/.config/powerline/colorschemes/default.json`. You are free to choose any colors you want.
 
 ```json
 {
@@ -58,7 +60,7 @@ Now, just reload Powerline using `powerline-daemon --replace`.
 
 ### Disabling
 
-By default the segment will always be displayed, but you may wish to toggle it instead. This can be done through a Bash function, which itself unsets or sets an environment variable that the segment reads:
+By default the segment will always be displayed, but you may wish to toggle it instead. This can be done through a Bash function, which unsets or sets an environment variable that the segment reads:
 
 ```bash
 function plts() {
@@ -70,6 +72,6 @@ function plts() {
 }
 ```
 
-You can add this function to your `~/.bashrc` file, source the file using `source ~/.bashrc`, and then toggle the segment using `plts` or whatever you chose for the name of the function. This function name can also be Tab-completed.
+You can add this function to your `~/.bashrc` file, source it using `source ~/.bashrc`, and then toggle the segment using `plts` or whatever you chose for the name of the function. This function name can also be Tab-completed.
 
 If you want to start your shell sessions _without_ having this segment, then add `export POWERLINE_TAILSCALE="0"` somewhere in `~/.bashrc`.
