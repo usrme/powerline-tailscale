@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name="powerline-tailscale",
     description="A Powerline segment for showing the status of Tailscale",
-    version="0.0.9",
+    version="0.0.10",
     keywords="powerline tailscale",
     license="MIT",
     author="Üllar Seerme",
