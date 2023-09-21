@@ -5,7 +5,6 @@ from typing import Union
 from powerline.segments import Segment, with_docstring
 from powerline.theme import requires_segment_info
 
-SEGMENT_PREFIX = "(ts)"
 SOCKET_PATH = "/var/run/tailscale/tailscaled.sock"
 BASE_LOCAL_API_ENDPOINT = "http://local-tailscaled.sock/localapi/v0"
 CURL_COMMAND = ["curl", "--unix-socket", SOCKET_PATH]
@@ -14,6 +13,9 @@ CURL_COMMAND = ["curl", "--unix-socket", SOCKET_PATH]
 @requires_segment_info
 class TailscaleSegment(Segment):
     def __init__(self):
+        self.segment_prefix = "(ts)"
+        self.primary_highlight_groups: list[str] = ["tailscale"]
+        self.secondary_highlight_groups: list[str] = ["tailscale_exitnode"]
         self.exit_node_ips: Union[list[str], None] = None
 
     def __call__(
@@ -41,35 +43,21 @@ class TailscaleSegment(Segment):
 
         if show_profile_name:
             ts_prefs = json.loads(query_api("prefs"))
-            profile_name = ts_prefs.get("ProfileName", None)
-            config = ts_prefs.get("Config", None)
-
-            if profile_name is None and config is not None:
-                contents = "default"
-            elif profile_name is None and config is None:
-                contents = "logged out"
-            else:
-                contents = profile_name
-
+            contents = get_profile_name(ts_prefs)
+            contents, highlight_groups = self.set_segment_styling(contents, show_profile_name)
             segments.append(
                 {
-                    "contents": f"{SEGMENT_PREFIX} {contents}",
-                    "highlight_groups": ["tailscale"],
+                    "contents": contents,
+                    "highlight_groups": highlight_groups,
                     "divider_highlight_group": "tailscale:divider",
                 }
             )
 
         if show_exit_node_status:
-            highlight_groups = ["tailscale_exitnode"]
             contents = "exit node (n)"
-
             if self.exit_node_ips:
                 contents = "exit node (y)"
-
-            if not show_profile_name and show_exit_node_status:
-                contents = f"{SEGMENT_PREFIX} {contents}"
-                highlight_groups = ["tailscale"]
-
+            contents, highlight_groups = self.set_segment_styling(contents, show_profile_name, show_exit_node_status)
             segments.append(
                 {
                     "contents": contents,
@@ -80,18 +68,12 @@ class TailscaleSegment(Segment):
 
         # Exit node's value can only be shown if 'show_exit_node_status' is False
         if show_exit_node and not show_exit_node_status:
-            highlight_groups = ["tailscale_exitnode"]
             contents = "exit node (n)"
-
             if self.exit_node_ips:
-                # If both an IPv4 and IPv6 address exist, it should get the first
-                # which is usually IPv4
+                # If both an IPv4 and IPv6 address exist, it
+                # should get the first which is usually IPv4
                 contents = self.exit_node_ips[0]
-
-            if not show_profile_name and show_exit_node:
-                contents = f"{SEGMENT_PREFIX} {contents}"
-                highlight_groups = ["tailscale"]
-
+            contents, highlight_groups = self.set_segment_styling(contents, show_profile_name, show_exit_node)
             segments.append(
                 {
                     "contents": contents,
@@ -102,18 +84,37 @@ class TailscaleSegment(Segment):
 
         return segments
 
+    def set_segment_styling(
+        self, contents: str, has_first_segment: bool, has_other_segments: bool = False
+    ) -> tuple[str, list[str]]:
+        highlight_groups = self.secondary_highlight_groups
+        if (has_first_segment and not has_other_segments) or (not has_first_segment and has_other_segments):
+            contents = f"{self.segment_prefix} {contents}"
+            highlight_groups = self.primary_highlight_groups
+        return contents, highlight_groups
+
 
 def query_api(endpoint: str) -> str:
     endpoint = f"{BASE_LOCAL_API_ENDPOINT}/{endpoint}"
     cmd = CURL_COMMAND.copy()
     cmd.append(endpoint)
-    return _execute(cmd)
+    return _fetch(cmd)
 
 
-def _execute(command: list[str]):
+def _fetch(command: list[str]) -> str:
     proc = Popen(command, stdout=PIPE, stderr=PIPE)
     out, _ = proc.communicate()
     return out.decode("utf-8")
+
+
+def get_profile_name(ts_prefs: dict) -> str:
+    profile_name = ts_prefs.get("ProfileName", None)
+    config = ts_prefs.get("Config", None)
+    if profile_name is None and config is not None:
+        return "default"
+    elif profile_name is None and config is None:
+        return "logged out"
+    return profile_name
 
 
 def get_exit_node_ips(ts_status: dict) -> list[str]:
