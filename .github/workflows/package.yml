@@ -28,7 +28,7 @@ jobs:
           ruff --line-length 120 --format=github --target-version=py37 .
       - name: Test
         run: |
-          pytest --doctest-modules --junitxml=junit/test-results.xml --cov=./ --cov-report=xml --cov-report=html
+          pytest --doctest-modules --junitxml=junit/test-results.xml --cov=./ --cov-report=xml --cov-report=html -vv
       - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
