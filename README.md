@@ -2,7 +2,21 @@
 
 A Powerline segment for showing the status of Tailscale.
 
+Since Tailscale doesn't (seemingly) have a configuration file where it reads and stores state, this segment implementation relies on the `tailscaled` API server. I haven't found any official documentation regarding it, but its capabilities are available [here](https://github.com/tailscale/tailscale/blob/c08cf2a9c6209e4fdef896921af66bbe737b8a24/ipn/localapi/localapi.go). There exists a Python library to interact with this API in limited form called ['tailscale-localapi'](https://github.com/apognu/tailscale-localapi), though I decided against using it because I didn't want to introduce any Python-specific dependencies; this is something I may reconsider in the future keeping in mind that the current implementation relies on `curl` instead.
+
 ## Requirements
+
+Besides having Tailscale installed according to the [official documentation](https://tailscale.com/kb/installation/), it is also necessary to install `curl` at either 7.40.0 or above, which is when the `--unix-socket` flag was introduced. You can check your version of `curl` with the `--version` flag:
+
+```console
+$ curl --version
+curl 7.85.0 (x86_64-redhat-linux-gnu) libcurl/7.85.0 OpenSSL/3.0.9 zlib/1.2.12 brotli/1.0.9 libidn2/2.3.4 libpsl/0.21.1 (+libidn2/2.3.3) libssh/0.10.5/openssl/zlib nghttp2/1.51.0
+Release-Date: 2022-08-31
+Protocols: dict file ftp ftps gopher gophers http https imap imaps ldap ldaps mqtt pop3 pop3s rtsp scp sftp smb smbs smtp smtps telnet tftp 
+Features: alt-svc AsynchDNS brotli GSS-API HSTS HTTP2 HTTPS-proxy IDN IPv6 Kerberos Largefile libz NTLM NTLM_WB PSL SPNEGO SSL threadsafe TLS-SRP UnixSockets
+```
+
+If `curl` or Tailscale isn't installed or `tailscaled` isn't running, then installing and configuring this segment will have no effect.
 
 ## Installation
 
@@ -27,7 +41,7 @@ Only three highlight groups are necessary to be defined in order for `powerline-
 }
 ```
 
-After that, enable the segment by modifying the relevant Powerline theme. If you are using the default, then in `~/.config/powerline/themes/shell/default.json`:
+After that, add the segment's configuration by modifying the relevant Powerline theme. If you are using the default, then in `~/.config/powerline/themes/shell/default.json`:
 
 ```json
 {
@@ -39,3 +53,23 @@ After that, enable the segment by modifying the relevant Powerline theme. If you
   }
 }
 ```
+
+Now, just reload Powerline using `powerline-daemon --replace`.
+
+### Disabling
+
+By default the segment will always be displayed, but you may wish to toggle it instead. This can be done through a Bash function, which itself unsets or sets an environment variable that the segment reads:
+
+```bash
+function plts() {
+  if [[ $POWERLINE_TAILSCALE = "0" ]]; then
+    unset POWERLINE_TAILSCALE
+  else
+    export POWERLINE_TAILSCALE=0
+  fi
+}
+```
+
+You can add this function to your `~/.bashrc` file, source the file using `source ~/.bashrc`, and then toggle the segment using `plts` or whatever you chose for the name of the function. This function name can also be Tab-completed.
+
+If you want to start your shell sessions _without_ having this segment, then add `export POWERLINE_TAILSCALE="0"` somewhere in `~/.bashrc`.
