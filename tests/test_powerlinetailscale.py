@@ -82,7 +82,7 @@ def test_profile_name_exit_node(monkeypatch, segment_info):
     monkeypatch.setattr(
         powerline_tailscale.segments,
         "_fetch",
-        lambda *args: '{"ProfileName": "home", "Config": {}, "ExitNodeStatus": {"TailscaleIPs": ["127.0.0.1/32", "::1"]}}',
+        lambda *args: '{"ProfileName": "home", "Config": {}, "ExitNodeStatus": {"TailscaleIPs": ["127.0.0.1/32", "::1"]}}',  # noqa: E501
     )
     output = powerline_tailscale.tailscale(segment_info, show_profile_name=True, show_exit_node_status=True)
     assert output == [EXPECTED_HOME_PROFILE, EXPECTED_EXIT_NODE]
@@ -122,7 +122,7 @@ def test_profile_name_exit_node_ip(monkeypatch, segment_info):
     monkeypatch.setattr(
         powerline_tailscale.segments,
         "_fetch",
-        lambda *args: '{"ProfileName": "home", "Config": {}, "ExitNodeStatus": {"TailscaleIPs": ["127.0.0.1/32", "::1"]}}',
+        lambda *args: '{"ProfileName": "home", "Config": {}, "ExitNodeStatus": {"TailscaleIPs": ["127.0.0.1/32", "::1"]}}',  # noqa: E501
     )
     output = powerline_tailscale.tailscale(
         segment_info, show_profile_name=True, show_exit_node_status=False, show_exit_node=True

@@ -1,1 +1,1 @@
-from .segments import tailscale
+from .segments import tailscale  # noqa: F401
