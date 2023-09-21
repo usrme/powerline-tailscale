@@ -88,25 +88,6 @@ def test_profile_name_exit_node(monkeypatch, segment_info):
     assert output == [EXPECTED_HOME_PROFILE, EXPECTED_EXIT_NODE]
 
 
-def test_show_no_profile_no_exit_node(monkeypatch, segment_info):
-    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "contents", "(ts) exit node (n)")
-    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "highlight_groups", ["tailscale"])
-    output = powerline_tailscale.tailscale(segment_info, show_profile_name=False, show_exit_node_status=True)
-    assert output == [EXPECTED_NO_EXIT_NODE]
-
-
-def test_show_no_profile_exit_node(monkeypatch, segment_info):
-    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "contents", "(ts) exit node (y)")
-    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "highlight_groups", ["tailscale"])
-    monkeypatch.setattr(
-        powerline_tailscale.segments,
-        "_fetch",
-        lambda *args: '{"ExitNodeStatus": {"TailscaleIPs": ["127.0.0.1/32", "::1"]}}',
-    )
-    output = powerline_tailscale.tailscale(segment_info, show_profile_name=False, show_exit_node_status=True)
-    assert output == [EXPECTED_NO_EXIT_NODE]
-
-
 def test_default_profile_no_exit_node_ip(monkeypatch, segment_info):
     monkeypatch.setattr(powerline_tailscale.segments, "_fetch", lambda *args: '{"Config": {}}')
     output = powerline_tailscale.tailscale(
@@ -147,3 +128,59 @@ def test_profile_name_exit_node_ip(monkeypatch, segment_info):
         segment_info, show_profile_name=True, show_exit_node_status=False, show_exit_node=True
     )
     assert output == [EXPECTED_HOME_PROFILE, EXPECTED_EXIT_NODE]
+
+
+def test_show_no_profile_no_exit_node(monkeypatch, segment_info):
+    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "contents", "(ts) exit node (n)")
+    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "highlight_groups", ["tailscale"])
+    output = powerline_tailscale.tailscale(segment_info, show_profile_name=False, show_exit_node_status=True)
+    assert output == [EXPECTED_NO_EXIT_NODE]
+
+
+def test_show_no_profile_exit_node(monkeypatch, segment_info):
+    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "contents", "(ts) exit node (y)")
+    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "highlight_groups", ["tailscale"])
+    monkeypatch.setattr(
+        powerline_tailscale.segments,
+        "_fetch",
+        lambda *args: '{"ExitNodeStatus": {"TailscaleIPs": ["127.0.0.1/32", "::1"]}}',
+    )
+    output = powerline_tailscale.tailscale(segment_info, show_profile_name=False, show_exit_node_status=True)
+    assert output == [EXPECTED_NO_EXIT_NODE]
+
+
+def test_show_no_profile_no_exit_node_ip(monkeypatch, segment_info):
+    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "contents", "(ts) exit node (n)")
+    monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "highlight_groups", ["tailscale"])
+    output = powerline_tailscale.tailscale(
+        segment_info, show_profile_name=False, show_exit_node_status=False, show_exit_node=True
+    )
+    assert output == [EXPECTED_NO_EXIT_NODE]
+
+
+def test_show_no_profile_exit_node_ip(monkeypatch, segment_info):
+    monkeypatch.setitem(EXPECTED_EXIT_NODE, "contents", "(ts) 127.0.0.1/32")
+    monkeypatch.setitem(EXPECTED_EXIT_NODE, "highlight_groups", ["tailscale"])
+    monkeypatch.setattr(
+        powerline_tailscale.segments,
+        "_fetch",
+        lambda *args: '{"ExitNodeStatus": {"TailscaleIPs": ["127.0.0.1/32", "::1"]}}',
+    )
+    output = powerline_tailscale.tailscale(
+        segment_info, show_profile_name=False, show_exit_node_status=False, show_exit_node=True
+    )
+    assert output == [EXPECTED_EXIT_NODE]
+
+
+def test_envvar_notzero_logged_out(monkeypatch):
+    segment_info = {"environ": {"POWERLINE_TAILSCALE": "1"}}
+    monkeypatch.setattr(powerline_tailscale.segments, "_fetch", lambda *args: "{}")
+    output = powerline_tailscale.tailscale(segment_info, show_profile_name=True)
+    assert output == [EXPECTED_LOGGED_OUT]
+
+
+def test_envvar_zero_logged_out(monkeypatch):
+    segment_info = {"environ": {"POWERLINE_TAILSCALE": "0"}}
+    monkeypatch.setattr(powerline_tailscale.segments, "_fetch", lambda *args: "{}")
+    output = powerline_tailscale.tailscale(segment_info, show_profile_name=True)
+    assert output is None
