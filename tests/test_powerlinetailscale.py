@@ -133,7 +133,7 @@ def test_profile_name_exit_node_ip(monkeypatch, segment_info):
 def test_show_no_profile_no_exit_node(monkeypatch, segment_info):
     monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "contents", "(ts) exit node (n)")
     monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "highlight_groups", ["tailscale"])
-    monkeypatch.setattr(powerline_tailscale.segments, "_fetch", lambda *args: '{}')
+    monkeypatch.setattr(powerline_tailscale.segments, "_fetch", lambda *args: "{}")
     output = powerline_tailscale.tailscale(segment_info, show_profile_name=False, show_exit_node_status=True)
     assert output == [EXPECTED_NO_EXIT_NODE]
 
@@ -153,7 +153,7 @@ def test_show_no_profile_exit_node(monkeypatch, segment_info):
 def test_show_no_profile_no_exit_node_ip(monkeypatch, segment_info):
     monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "contents", "(ts) exit node (n)")
     monkeypatch.setitem(EXPECTED_NO_EXIT_NODE, "highlight_groups", ["tailscale"])
-    monkeypatch.setattr(powerline_tailscale.segments, "_fetch", lambda *args: '{}')
+    monkeypatch.setattr(powerline_tailscale.segments, "_fetch", lambda *args: "{}")
     output = powerline_tailscale.tailscale(
         segment_info, show_profile_name=False, show_exit_node_status=False, show_exit_node=True
     )
