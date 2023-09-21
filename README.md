@@ -58,6 +58,17 @@ After that, add the segment's configuration by modifying the relevant Powerline 
 
 Now, just reload Powerline using `powerline-daemon --replace`.
 
+### Options
+
+* `show_profile_name` shows either:
+  * "logged out" if `tailscaled` is running, but no account is logged in;
+  * "default" if no profile is created, i.e. the log-in hasn't been done with `tailscale login --nickname=work`;
+  * or the name of the profile itself
+* `show_exit_node_status` shows a boolean "exit node (y)" or "exit node (n)" depending on whether connected to an exit node through `tailscale up --exit-node="<IP>"`
+* `show_exit_node` shows the actual IP address of the exit node as given to `tailscale up --exit-node="<IP>"`
+  * the `show_exit_node_status` option needs to be set to `false` when this option is set to `true`
+  * if not connected to an exit node, then "exit node (n)" is shown
+
 ### Disabling
 
 By default the segment will always be displayed, but you may wish to toggle it instead. This can be done through a Bash function, which unsets or sets an environment variable that the segment reads:

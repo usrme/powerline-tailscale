@@ -129,4 +129,28 @@ def get_exit_node_ips(ts_status: dict) -> list[str]:
     return exit_node_ips
 
 
-tailscale = with_docstring(TailscaleSegment(), """Return the status of Tailscale.""")
+tailscale = with_docstring(
+    TailscaleSegment(),
+    """Return the status of Tailscale.
+
+:param bool show_profile_name:
+    Show the name of the active profile. If no profile has been created, then show "default".
+    If no configuration can be found for the user, then it is assumed that the user is logged
+    out and "logged out" is shown.
+    True by default.
+
+:param bool show_exit_node_status:
+    Show either "exit node (n)" or "exit node (y)" depending on whether connected to an exit
+    node.
+    True by default.
+
+:param bool show_exit_node:
+    Show either "exit node (n)" if not connected to an exit node or the IP address of the
+    exit node if connected to one.
+    False by default.
+
+Divider highlight group used: ``tailscale:divider``.
+
+Highlight groups used: ``tailscale`` and ``tailscale_exitnode``.
+""",
+)
