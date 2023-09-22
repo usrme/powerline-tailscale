@@ -1,0 +1,31 @@
+[project]
+name = "powerline-tailscale"
+version = "1.0.2"
+description = "A Powerline segment for showing the status of Tailscale"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["powerline", "tailscale"]
+authors = [
+    { name = "Üllar Seerme" }
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Terminals",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[project.urls]
+Homepage = "https://github.com/usrme/powerline-tailscale"
+Documentation = "https://github.com/usrme/powerline-tailscale"
+Repository = "https://github.com/usrme/powerline-tailscale"
+
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
