@@ -1,6 +1,9 @@
 name: Package
 
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -48,7 +51,6 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-          TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
         run: |
           python setup.py sdist bdist_wheel
           twine upload dist/*
