@@ -1,6 +1,16 @@
 # Powerline Tailscale
 
-A Powerline segment for showing the status of Tailscale.
+<p align="center">
+    <em>A Powerline segment for showing the status of Tailscale</em>
+</p>
+<p align="center">
+    <a href="https://pypi.org/project/powerline-tailscale" target="_blank">
+        <img src="https://img.shields.io/pypi/v/powerline-tailscale?color=%2334D058&label=pypi%20package" alt="Package version">
+    </a>
+    <a href="https://pypi.org/project/powerline-tailscale" target="_blank">
+        <img src="https://img.shields.io/pypi/pyversions/powerline-tailscale.svg?color=%2334D058" alt="Supported Python versions">
+    </a>
+</p>
 
 ![Powerline Tailscale - animated GIF demo](examples/demo.gif)
 
